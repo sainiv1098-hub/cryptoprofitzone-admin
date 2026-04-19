@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import {
   FiCheck, FiX, FiLogOut, FiMenu, FiHome, FiHash,
@@ -92,11 +93,16 @@ function AdminApp() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-4">
         <div className="flex items-center gap-2 mb-2">
-          <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-cyan-400 rounded-lg flex items-center justify-center text-white font-bold">
-            A
-          </div>
+          <Image
+            src="/cryptozonelogo.jpeg"
+            alt="Crypto Profit Zone"
+            width={40}
+            height={40}
+            className="w-10 h-10 rounded-lg object-cover"
+            priority
+          />
           <h1 className="text-2xl font-bold text-white">
-            Abc<span className="text-indigo-400">Pay</span> Admin
+            Crypto <span className="text-indigo-400">Profit Zone</span> Admin
           </h1>
         </div>
         <p className="text-muted text-sm">Sign in with your authorized Google account</p>
@@ -132,9 +138,13 @@ function AdminApp() {
       >
         <div className="px-4 py-4 border-b border-card-border">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-gradient-to-br from-indigo-500 to-cyan-400 rounded-md flex items-center justify-center text-white font-bold text-xs">
-              A
-            </div>
+            <Image
+              src="/cryptozonelogo.jpeg"
+              alt="Crypto Profit Zone"
+              width={28}
+              height={28}
+              className="w-7 h-7 rounded-md object-cover"
+            />
             <span className="text-sm font-bold text-white">Admin Panel</span>
           </div>
         </div>

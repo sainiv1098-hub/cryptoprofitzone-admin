@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AbcPay Admin",
-  description: "AbcPay Admin Panel",
+  title: "Crypto Profit Zone Admin",
+  description: "Crypto Profit Zone Admin Panel",
 };
 
 export default function RootLayout({
