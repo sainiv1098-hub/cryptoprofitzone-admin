@@ -204,6 +204,7 @@ function DashboardSection() {
 function RequestsSection({ token }: { token: string }) {
   const [tab, setTab] = useState<"deposits" | "withdrawals" | "sec-deposits" | "sec-withdrawals">("deposits");
   const [statusFilter, setStatusFilter] = useState<"pending" | "approved" | "rejected">("pending");
+  const [search, setSearch] = useState("");
   const [data, setData] = useState<any[]>([]);
   const [fetching, setFetching] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -255,51 +256,63 @@ function RequestsSection({ token }: { token: string }) {
     }
   }
 
+  const filtered = search
+    ? data.filter((item) => {
+        const s = search.toLowerCase();
+        return item.userPhone?.toLowerCase().includes(s) || item.userName?.toLowerCase().includes(s);
+      })
+    : data;
+
   return (
     <div>
-      {/* Tab filter */}
-      <div className="flex gap-2 mb-3 overflow-x-auto">
-        {(["deposits", "withdrawals", "sec-deposits", "sec-withdrawals"] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`px-3 py-1.5 text-xs rounded-full whitespace-nowrap ${
-              tab === t ? "bg-primary text-white" : "bg-card-bg text-muted border border-card-border"
-            }`}
-          >
-            {t.replace("-", " ").replace(/\b\w/g, (c) => c.toUpperCase())}
-          </button>
-        ))}
-      </div>
+      <h2 className="text-white font-bold mb-4">Requests</h2>
 
-      {/* Status filter */}
-      <div className="flex gap-2 mb-4">
-        {(["pending", "approved", "rejected"] as const).map((s) => (
-          <button
-            key={s}
-            onClick={() => setStatusFilter(s)}
-            className={`px-3 py-1.5 text-xs rounded-full whitespace-nowrap font-medium ${
-              statusFilter === s
-                ? s === "pending"
-                  ? "bg-yellow-500 text-black"
-                  : s === "approved"
-                  ? "bg-success text-white"
-                  : "bg-danger text-white"
-                : "bg-card-bg text-muted border border-card-border"
-            }`}
+      {/* Filters */}
+      <div className="flex flex-wrap gap-3 mb-4">
+        <div className="flex flex-col gap-1">
+          <label className="text-muted text-[10px] font-medium uppercase tracking-wide">Type</label>
+          <select
+            value={tab}
+            onChange={(e) => setTab(e.target.value as typeof tab)}
+            className="bg-card-bg border border-card-border text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-primary cursor-pointer min-w-40"
           >
-            {s.charAt(0).toUpperCase() + s.slice(1)}
-          </button>
-        ))}
+            <option value="deposits">Deposits</option>
+            <option value="withdrawals">Withdrawals</option>
+            <option value="sec-deposits">Security Deposits</option>
+            <option value="sec-withdrawals">Security Withdrawals</option>
+          </select>
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-muted text-[10px] font-medium uppercase tracking-wide">Status</label>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
+            className="bg-card-bg border border-card-border text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-primary cursor-pointer min-w-32"
+          >
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-muted text-[10px] font-medium uppercase tracking-wide">Search</label>
+          <input
+            type="text"
+            placeholder="Phone or name..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="bg-card-bg border border-card-border text-white text-sm rounded-lg px-3 py-2 placeholder:text-muted focus:outline-none focus:border-primary min-w-40"
+          />
+        </div>
       </div>
 
       {fetching ? (
         <p className="text-muted">Loading...</p>
-      ) : data.length === 0 ? (
-        <p className="text-muted">No {statusFilter} requests</p>
+      ) : filtered.length === 0 ? (
+        <p className="text-muted">No {statusFilter} {search ? `results for "${search}"` : "requests"}</p>
       ) : (
         <div className="flex flex-col gap-3">
-          {data.map((item: any) => (
+          {filtered.map((item: any) => (
             <div key={item.id} className="bg-card-bg border border-card-border rounded-xl p-4">
               <div className="flex items-center justify-between mb-2">
                 <div>
@@ -375,6 +388,7 @@ function RequestsSection({ token }: { token: string }) {
 
 function UTRsSection({ token }: { token: string }) {
   const [statusFilter, setStatusFilter] = useState<"pending" | "approved" | "rejected">("pending");
+  const [utrSearch, setUtrSearch] = useState("");
   const [data, setData] = useState<any[]>([]);
   const [fetching, setFetching] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -414,38 +428,50 @@ function UTRsSection({ token }: { token: string }) {
     }
   }
 
+  const utrFiltered = utrSearch
+    ? data.filter((item) => {
+        const s = utrSearch.toLowerCase();
+        return item.utrNumber?.toLowerCase().includes(s) || item.userPhone?.toLowerCase().includes(s) || item.userName?.toLowerCase().includes(s);
+      })
+    : data;
+
   return (
     <div>
       <h2 className="text-white font-bold mb-4">UTRs</h2>
 
-      {/* Status filter */}
-      <div className="flex gap-2 mb-4">
-        {(["pending", "approved", "rejected"] as const).map((s) => (
-          <button
-            key={s}
-            onClick={() => setStatusFilter(s)}
-            className={`px-3 py-1.5 text-xs rounded-full whitespace-nowrap font-medium ${
-              statusFilter === s
-                ? s === "pending"
-                  ? "bg-yellow-500 text-black"
-                  : s === "approved"
-                  ? "bg-success text-white"
-                  : "bg-danger text-white"
-                : "bg-card-bg text-muted border border-card-border"
-            }`}
+      {/* Filters */}
+      <div className="flex flex-wrap gap-3 mb-4">
+        <div className="flex flex-col gap-1">
+          <label className="text-muted text-[10px] font-medium uppercase tracking-wide">Status</label>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
+            className="bg-card-bg border border-card-border text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-primary cursor-pointer min-w-32"
           >
-            {s.charAt(0).toUpperCase() + s.slice(1)}
-          </button>
-        ))}
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-muted text-[10px] font-medium uppercase tracking-wide">Search</label>
+          <input
+            type="text"
+            placeholder="UTR, phone or name..."
+            value={utrSearch}
+            onChange={(e) => setUtrSearch(e.target.value)}
+            className="bg-card-bg border border-card-border text-white text-sm rounded-lg px-3 py-2 placeholder:text-muted focus:outline-none focus:border-primary min-w-40"
+          />
+        </div>
       </div>
 
       {fetching ? (
         <p className="text-muted">Loading...</p>
-      ) : data.length === 0 ? (
-        <p className="text-muted">No {statusFilter} UTRs</p>
+      ) : utrFiltered.length === 0 ? (
+        <p className="text-muted">No {statusFilter} {utrSearch ? `results for "${utrSearch}"` : "UTRs"}</p>
       ) : (
         <div className="flex flex-col gap-3">
-          {data.map((item: any) => (
+          {utrFiltered.map((item: any) => (
             <div key={item.id} className="bg-card-bg border border-card-border rounded-xl p-4">
               <div className="flex items-center justify-between mb-2">
                 <div>
