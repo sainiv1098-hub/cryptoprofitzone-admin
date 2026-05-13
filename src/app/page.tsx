@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import {
@@ -208,6 +208,7 @@ function RequestsSection({ token }: { token: string }) {
   const [data, setData] = useState<any[]>([]);
   const [fetching, setFetching] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const inFlight = useRef(new Set<string>());
 
   const fetchData = useCallback(async () => {
     setFetching(true);
@@ -235,6 +236,8 @@ function RequestsSection({ token }: { token: string }) {
   }, [fetchData]);
 
   async function handleAction(id: string, status: "approved" | "rejected") {
+    if (inFlight.current.has(id)) return;
+    inFlight.current.add(id);
     setActionLoading(id);
     const ep: Record<string, string> = {
       deposits: "/admin/update-transaction",
@@ -252,6 +255,7 @@ function RequestsSection({ token }: { token: string }) {
     } catch (err) {
       console.error(err);
     } finally {
+      inFlight.current.delete(id);
       setActionLoading(null);
     }
   }
@@ -365,14 +369,15 @@ function RequestsSection({ token }: { token: string }) {
                   <button
                     onClick={() => handleAction(item.id, "approved")}
                     disabled={actionLoading === item.id}
-                    className="flex-1 flex items-center justify-center gap-1.5 bg-success text-white py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50"
+                    className="flex-1 flex items-center justify-center gap-1.5 bg-success text-white py-2.5 rounded-lg text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    <FiCheck size={16} /> Approve
+                    {actionLoading === item.id ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <FiCheck size={16} />}
+                    {actionLoading === item.id ? "Processing..." : "Approve"}
                   </button>
                   <button
                     onClick={() => handleAction(item.id, "rejected")}
                     disabled={actionLoading === item.id}
-                    className="flex-1 flex items-center justify-center gap-1.5 bg-danger text-white py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50"
+                    className="flex-1 flex items-center justify-center gap-1.5 bg-danger text-white py-2.5 rounded-lg text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     <FiX size={16} /> Reject
                   </button>
@@ -392,6 +397,7 @@ function UTRsSection({ token }: { token: string }) {
   const [data, setData] = useState<any[]>([]);
   const [fetching, setFetching] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const inFlight = useRef(new Set<string>());
 
   const fetchData = useCallback(async () => {
     setFetching(true);
@@ -413,6 +419,8 @@ function UTRsSection({ token }: { token: string }) {
   }, [fetchData]);
 
   async function handleAction(id: string, status: "approved" | "rejected") {
+    if (inFlight.current.has(id)) return;
+    inFlight.current.add(id);
     setActionLoading(id);
     try {
       await fetch(`${API_URL}/admin/update-utr`, {
@@ -424,6 +432,7 @@ function UTRsSection({ token }: { token: string }) {
     } catch (err) {
       console.error(err);
     } finally {
+      inFlight.current.delete(id);
       setActionLoading(null);
     }
   }
@@ -510,14 +519,15 @@ function UTRsSection({ token }: { token: string }) {
                   <button
                     onClick={() => handleAction(item.id, "approved")}
                     disabled={actionLoading === item.id}
-                    className="flex-1 flex items-center justify-center gap-1.5 bg-success text-white py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50"
+                    className="flex-1 flex items-center justify-center gap-1.5 bg-success text-white py-2.5 rounded-lg text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    <FiCheck size={16} /> Approve
+                    {actionLoading === item.id ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <FiCheck size={16} />}
+                    {actionLoading === item.id ? "Processing..." : "Approve"}
                   </button>
                   <button
                     onClick={() => handleAction(item.id, "rejected")}
                     disabled={actionLoading === item.id}
-                    className="flex-1 flex items-center justify-center gap-1.5 bg-danger text-white py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50"
+                    className="flex-1 flex items-center justify-center gap-1.5 bg-danger text-white py-2.5 rounded-lg text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     <FiX size={16} /> Reject
                   </button>
